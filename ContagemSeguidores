@@ -1,0 +1,53 @@
+// INSIRA entre as aspas o nome da página da sua planilha
+var nomePagPlanilha = "";
+
+// INSIRA entre as aspas o ID do usuário do instagram que você quer extrair os dados
+var idUsuario = "";
+
+// Dados do usuário a fim de serem utilizados pela API
+var urlAPIIntagram = "https://www.instagram.com/graphql/query/";
+var seguidores = "?query_hash=37479f2b8209594dde7facb0d904896a&variables=%7B%22id%22%3A%22" + idUsuario + "%22%2C%22first%22%3A24%7D"
+
+// Cria uma instancia da tabela, com os dados anteriores e os novos dados. Assim, adiciona-se mais uma linha a essa tabela.
+function insertFollowerCount() {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var tabela = ss.getSheetByName(this.nomePagPlanilha);
+    // Guardando os dados antigos
+    var dataAnterior = prevData();
+    // Guardando os novos dados
+    var seguidores = getFollowers();
+    // Adiciona uma linha na tabela com os novos dados
+    tabela.appendRow([Utilities.formatDate(new Date(), "GMT", "dd/MM/yyyy"), seguidores, seguidores-dataAnterior.seguidores]);
+};
+
+// Faz uma solicitação à API do Instagram para obter o número de seguidores do usuário:
+function getFollowers() {
+    return parseInt(fetch(urlAPIIntagram + seguidores)['data']['user']['edge_followed_by']['count']);
+}
+
+// COLE OS VALORES DE COOKIE AQUI, que necessários para autenticar a solicitação à API do Instagram.
+var autentificacao = {'cookie': ''};
+
+// Função que retorna dados da API em formato JSON
+function fetch(url) {
+  var ignoreError = {
+    "muteHttpExceptions": true,
+    "validateHttpsCertificates":false,
+    "headers":autentificacao
+  };
+  var source = UrlFetchApp.fetch(url, ignoreError).getContentText();
+  var data = JSON.parse(source);
+  return data;
+}
+
+// Obtém os dados anteriores de seguidores da planilha:
+function prevData() {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var tabela = ss.getSheetByName(this.nomePagPlanilha);
+    var Avals = tabela.getRange("B1:B").getValues();
+    var Alast = Avals.filter(String).length;
+    var seguidoresPrevios = tabela.getRange("B"+Alast).getValues();
+  return {
+    seguidores: parseInt(seguidoresPrevios),
+  }
+};
