@@ -30,14 +30,14 @@ var autentificacao = {'cookie': ''};
 
 // Função que retorna dados da API em formato JSON
 function fetch(url) {
-  var ignoreError = {
+  var errorCodigo = {
     "muteHttpExceptions": true,
     "validateHttpsCertificates":false,
     "headers":autentificacao
   };
-  var source = UrlFetchApp.fetch(url, ignoreError).getContentText();
-  var data = JSON.parse(source);
-  return data;
+  var source = UrlFetchApp.fetch(url, errorCodigo).getContentText();
+  var dadosObtidos = JSON.parse(source);
+  return dadosObtidos;
 }
 
 // Obtém os dados anteriores de seguidores da planilha:
